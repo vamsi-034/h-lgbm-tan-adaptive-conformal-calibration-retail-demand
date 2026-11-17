@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>H-LGBM-TAN Architecture Diagram</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>H-LGBM-TAN System Architecture</h2>
+        <p><i>Note: You can use a Snipping Tool or screenshot to capture this diagram for your paper.</i></p>
+        
+        <div class="mermaid">
+        graph TD
+            classDef dl fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+            classDef ml fill:#fce4ec,stroke:#c2185b,stroke-width:2px;
+            classDef merge fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+
+            Features((Raw Time Series<br/>Features))
+            
+            subgraph Stage 1: Tree Ensembles
+                Features --> XGB[Plain Point Ensemble<br/>XGBoost / LightGBM]:::ml
+                Features --> LGBM[Occurrence Classifier<br/>LightGBM]:::ml
+                
+                XGB --> |point_preds| PointCandidate[Candidate Point Forecast]
+                LGBM --> |P_hat| Gate{Threshold Gate<br/>P_hat >= theta}:::ml
+            end
+
+            subgraph Stage 2: Deep Learning
+                Features --> TAN[Temporal Attention Network<br/>BiGRU + Multi-Head Attn]:::dl
+                TAN --> |q05, q95| RawQ[Raw Quantiles]
+            end
+
+            subgraph Stage 3: Hybrid Coupling & Calibration
+                Gate --> |If 1| PointCandidate
+                Gate --> |If 0| ZeroPoint[0]
+                
+                Gate --> |If 1| RawQ
+                Gate --> |If 0| ZeroQ[0, 0]
+                
+                RawQ --> ACI[Adaptive Conformal Inference<br/>Error Tracking]:::merge
+            end
+            
+            PointCandidate --> FinalPoint((Final Point Forecast))
+            ZeroPoint --> FinalPoint
+            
+            ACI --> FinalProb((Calibrated 90%<br/>Prediction Intervals))
+            ZeroQ --> FinalProb
+        </div>
+    </div>
+    
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

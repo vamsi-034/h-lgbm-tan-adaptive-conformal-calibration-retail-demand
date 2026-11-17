@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch Lightning & Deep Learning Checkpoints
+lightning_logs/
+*.ckpt
+*.pt
+*.pth
+
+# Large Dataset Directories & Raw Archives (M5 raw files exceed GitHub limit)
+m5_data/
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Temporary / diagnostic scratch logs
+check_docx.txt
+docx_dump.txt
+tables_extract.txt
+*.log
+
+# Environments
+env/
+venv/
+ENV/
+.venv/
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
